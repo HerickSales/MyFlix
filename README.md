@@ -1,1 +1,1 @@
-Api simplificate de hospedagem de Videos
+Api simplificada de hospedagem de Videos
