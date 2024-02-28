@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿    using AutoMapper;
 using MyFlix.Data.Dtos;
 using MyFlix.Models;
 
@@ -12,6 +12,7 @@ namespace MyFlix.Profiles
             CreateMap<UpdateVideoDto, Videos>();
             CreateMap<Videos,UpdateVideoDto>();
             CreateMap<Videos, ReadVideoDto>();
+            CreateMap<UpdateVideoDto, ReadVideoDto>();
         }
     }
 }

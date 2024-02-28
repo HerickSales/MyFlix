@@ -64,3 +64,4 @@ D:\Projetos\C#\MyFlix\MyFlix\bin\Debug\net7.0\System.IdentityModel.Tokens.Jwt.dl
 D:\Projetos\C#\MyFlix\MyFlix\bin\Debug\net7.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
 D:\Projetos\C#\MyFlix\MyFlix\bin\Debug\net7.0\Microsoft.IdentityModel.Protocols.dll
 D:\Projetos\C#\MyFlix\MyFlix\bin\Debug\net7.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+D:\Projetos\C#\MyFlix\MyFlix\obj\Debug\net7.0\MyFlix.sourcelink.json

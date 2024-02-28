@@ -1,9 +1,10 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MyFlix.Data;
+using MyFlix.Data.Context;
 using MyFlix.Data.Dtos;
 using MyFlix.Models;
+using MyFlix.Services;
 
 
 namespace MyFlix.Controllers
@@ -18,11 +19,14 @@ namespace MyFlix.Controllers
     {
         private MyFlixContext _context;
         private IMapper _mapper;
+        private UnitOfService _service;
 
-        public CategoriaController(MyFlixContext context, IMapper mapper)
+        public CategoriaController(MyFlixContext context, IMapper mapper, UnitOfService service)
         {
             this._context = context;
             this._mapper = mapper;
+            this._service = service;
+
         }
 
         [HttpPost]
@@ -69,35 +73,17 @@ namespace MyFlix.Controllers
                 return BadRequest(ex);
             }
         }
+        
         [HttpGet("{id}/videos")]
         public IActionResult GetVideoAgrupado(int id)
         {
-            try
+            var result= _service.CategoriaService.GetVideoAgrupado(id);
+
+            if (result.IsSuccess)
             {
-                var cat = _context.Categorias.FirstOrDefault(cat => cat.Id == id);
-                if (cat == null)
-                {
-                    return NotFound("Categoria nao encontrada");
-                }
-                var videos= cat.Videos.ToList();
-
-                if (videos==null)
-                {
-                    return Ok("Esta categoria nao possui videos");
-                }
-               
-
-                    
-
-                return Ok(_mapper.Map<List<ReadVideoDto>>(cat.Videos.ToList()));
-
-
-            }catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
+                return Ok(result.Successes.FirstOrDefault());
             }
-
-           
+            return BadRequest(result.Errors.FirstOrDefault());
         }
 
     }

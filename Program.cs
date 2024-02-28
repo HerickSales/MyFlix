@@ -3,7 +3,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using MyFlix.Data;
+using MyFlix.Data.Context;
+using MyFlix.Data.UnitOfWork;
 using MyFlix.Models;
 using MyFlix.Services;
 using System.Text;
@@ -90,7 +91,8 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 //adicionando services
 
-builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<UnitOfService>();
+builder.Services.AddScoped<UnitOfWork>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

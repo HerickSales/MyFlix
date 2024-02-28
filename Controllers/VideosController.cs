@@ -2,10 +2,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using MyFlix.Data;
+using MyFlix.Data.Context;
 using MyFlix.Data.Dtos;
-using MyFlix.Models;
+using MyFlix.Services;
 
 namespace MyFlix.Controllers
 {
@@ -18,121 +17,109 @@ namespace MyFlix.Controllers
     {
         private MyFlixContext _context;
         private IMapper _mapper;
+        private UnitOfService _service;
+        
 
 
-        public VideosController(MyFlixContext context, IMapper mapper)
+        public VideosController(MyFlixContext context, IMapper mapper, UnitOfService service)
         {
             _context = context;
             _mapper = mapper;
+            _service = service;
 
         }
         [HttpPost]
         public IActionResult AddVideo([FromBody] CreateVideoDto videoDto)
-        {
-            if (videoDto.CategoriaId == 0)
-            {
-                videoDto.CategoriaId = 1;
-            }
+        { 
 
-            Videos video = _mapper.Map<Videos>(videoDto);
-            _context.Videos.Add(video);
-            _context.SaveChanges();
-            return Ok(video);
+           var result= _service.VideoService.AddVideos(videoDto);
+
+            if (result.IsSuccess)
+            { 
+                return Ok(result.Successes.FirstOrDefault());
+            }
+            return BadRequest(result.Errors.FirstOrDefault());
+
         }
 
         [HttpGet]
     
-        public IEnumerable<ReadVideoDto> GetVideos([FromQuery]int page=0)
+        public ActionResult GetVideos([FromQuery]int page=1)
         {
-            return _mapper.Map<List<ReadVideoDto>>(_context.Videos.Skip(page*3).Take(3).ToList());
+            var result = _service.VideoService.GetVideos(page,5 );
+
+            if (result.IsSuccess)
+            {
+                return Ok(result.Successes.FirstOrDefault());
+            }
+            return BadRequest(result.Errors.FirstOrDefault());
+            
         }
 
+        
+        
         [HttpGet("{id}")]
         public IActionResult GetVideo(int id)
         {
-            var video = _context.Videos.FirstOrDefault(v => v.Id == id);
-            if (video == null)
+           var result= _service.VideoService.SearchVideo(id);
+
+            if (result.IsSuccess)
             {
-                return BadRequest("video nao encontrado");
+                return Ok(result.Successes.FirstOrDefault());
             }
-            var readDto= _mapper.Map<ReadVideoDto>(video);
-            return Ok(readDto);
+            return BadRequest(result.Errors.FirstOrDefault());
             
         }
 
         [HttpGet("Gratuitos")]
         [AllowAnonymous]
       
-        public IEnumerable<ReadVideoDto> GetVideosGratuitos()
+        public ActionResult GetVideosGratuitos()
         {
-            return _mapper.Map<List<ReadVideoDto>>(_context.Videos.Take(2).ToList());
+            
+
+            var result= _service.VideoService.GetGratuitos();
+            if (result.IsSuccess)
+            {
+                return Ok(result.Successes.FirstOrDefault());
+            }
+            return BadRequest(result.Errors.FirstOrDefault());
         }
 
         [HttpPut("{id}")]
-        public IActionResult AtualizaVideo(int id, [FromBody] UpdateVideoDto videoDto)
-        {
-            var video = _context.Videos.FirstOrDefault(video => video.Id == id);
-            if (video == null)
+        public ActionResult AtualizaVideo(int id, [FromBody] UpdateVideoDto videoDto)
+        {   
+            var result=  _service.VideoService.AtualizaVideo(id,videoDto);
+            if (result.IsSuccess)
             {
-                return NotFound("erro ao atualizar Video");
-
+                return Ok(result.Successes.FirstOrDefault());
             }
+            return BadRequest(result.Errors.FirstOrDefault());
+            
 
-          if( video.CategoriaId == 0){
-                video.CategoriaId = 1;
-          }
-
-            var cat = _context.Categorias.FirstOrDefault(c => c.Id == videoDto.CategoriaId);
-            if (cat == null)
-            {
-                return NotFound("Erro ao atualizar Video");
-            }
-          
-
-
-            _mapper.Map(videoDto, video);   
-     
-            _context.SaveChanges();
-
-
-
-            return Ok(_mapper.Map<ReadVideoDto>(video));
         }
 
         [HttpPatch("{id}")]
         public IActionResult AtulizaParcial(int id, JsonPatchDocument<UpdateVideoDto> patch) 
         {
-            var video= _context.Videos.FirstOrDefault(video => video.Id==id);
-            if (video == null) return NotFound();
-
-            var videoAtt = _mapper.Map<UpdateVideoDto>(video);
-
-            patch.ApplyTo(videoAtt,ModelState);
-
-            if (!TryValidateModel(videoAtt)) return ValidationProblem(ModelState);
-
-
-
-            _mapper.Map(videoAtt, video);
-            var cat = _context.Categorias.FirstOrDefault(c => c.Id == video.CategoriaId);
-            if (cat == null)
+            var result= _service.VideoService.AtualizaParcial(id,patch);
+            if (result.IsSuccess)
             {
-                return NotFound("Erro ao atualizar Video");
+                return Ok(result.Successes.FirstOrDefault());
             }
-
-            _context.SaveChanges();
-            return Ok(_mapper.Map<ReadVideoDto>(video));
+            return BadRequest(result.Errors.FirstOrDefault());
         }
 
         [HttpDelete("{id}")]
         public IActionResult deleteVideo(int id)
         {
-            var video= _context.Videos.FirstOrDefault(v => v.Id==id);
-            if (video == null) return BadRequest("Falha ao deletar ");
-
-            _context.Videos.Remove(video);
-            _context.SaveChanges();
-            return Ok("Video deletado");
+           var result = _service.VideoService.Delete(id);  
+            if (result.IsSuccess)
+            {
+                return Ok(result.Successes.FirstOrDefault());
+            }
+            return BadRequest(result.Errors.FirstOrDefault());
+            
         }
          
         

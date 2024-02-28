@@ -10,11 +10,11 @@ namespace MyFlix.Controllers
     [ApiController]
     public class UserController: ControllerBase
     {
-        private UserService _userService;
+        private UnitOfService _service;
 
-        public UserController(UserService userSrv)
+        public UserController(UnitOfService service)
         {
-            _userService = userSrv;
+            _service = service;
         }
 
 
@@ -23,7 +23,7 @@ namespace MyFlix.Controllers
         {
             try
             {
-                var result=await _userService.CadastraUser(dto);
+                var result=await _service.UserService.CadastraUser(dto);
                 if(result.IsSuccess)
                 {
                     return Ok(result.Successes.FirstOrDefault());
@@ -39,17 +39,12 @@ namespace MyFlix.Controllers
         [HttpPost("Login")]
         public async Task<IActionResult> Login(LoginUserDto loginDto)
         {
-            var token = await _userService.Logar(loginDto);
+            var token = await _service.UserService.Logar(loginDto);
             if (token.IsSuccess)
             {
                 return Ok(token.Successes.FirstOrDefault());
             }
             return BadRequest(token.Errors.FirstOrDefault());
-
-            
         }
-
-    
-
     }   
 }

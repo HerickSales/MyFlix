@@ -9,6 +9,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
+
 namespace MyFlix.Services
 {
     public class UserService
@@ -17,8 +18,6 @@ namespace MyFlix.Services
         private UserManager<User> _userManager;
         private SignInManager<User> _signInManager;
         private IConfiguration _config;
-
-
 
         public UserService(IMapper map, UserManager<User> user, SignInManager<User> signInManager, IConfiguration config)
         {
@@ -63,7 +62,7 @@ namespace MyFlix.Services
                     throw new ApplicationException("Login ou Senha incorreto");
                 }
                 var token = GerarToken(loginDto);
-                result = new Result().WithSuccess(new Success(token));
+                result = new Result().WithSuccess(new Success("Sucesso").WithMetadata("token", token));
 
                 return result;
             }
@@ -93,7 +92,7 @@ namespace MyFlix.Services
 
                 var token = new JwtSecurityToken(
 
-                    expires: DateTime.Now.AddMinutes(15),
+                    expires: DateTime.Now.AddMinutes(360),
                     claims: claims,
                     issuer: _config["Jwt:Issuer"],
                     audience: _config["Jwt:Audience"],
@@ -103,11 +102,6 @@ namespace MyFlix.Services
 
                 return new JwtSecurityTokenHandler().WriteToken(token);
             
-
-
-
-
-
         }
     }
 }
